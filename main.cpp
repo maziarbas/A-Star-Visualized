@@ -14,32 +14,40 @@ enum class State {KEmpty,KObstacle,KClosed, KPath, KStart, KGoal};
 
 
  
-vector<int> ParseLine(string line)
+vector<State> ParseLine(string line)
 {
     int n;
-    vector<int> row;
+    vector<State> row;
     istringstream sline(line);
     while (sline>>n)
     {
-        row.push_back(n);
-        cout<<n<<"\n";
-    }
+        switch (n)
+        {
+        case 0:
+            row.push_back(State::KEmpty);
+            break;
+        
+        default:
+            row.push_back(State::KObstacle);
+            break;
+        }    }
     return row;    
 }
 
-vector<vector<int>> ReadBoardFile(string path)
+vector<vector<State>> ReadBoardFile(string path)
 {
     ifstream board_file(path);
+    vector<vector<State>> board;
     if(board_file)
     {
         string line;
         while(getline(board_file,line))
         {
             cout<<line<<"\n";
-            ParseLine(line);
-            
+            board.push_back(ParseLine(line));
         }
     }
+    return board;
 }
 
 
