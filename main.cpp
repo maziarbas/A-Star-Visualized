@@ -149,11 +149,11 @@ vector<vector<State>> Search(vector<vector<State>> &grid, int init[2], int goal[
 string CellString(State cell) {
     
     switch(cell) {
-    case State::KObstacle: return "\U0000274C";
-    case State::KPath: return "\U0001F535";
-    case State::KStart: return "\U0001F6A6";
-    case State::KGoal: return "\U0001F3C1";
-    default: return  "\U000025FB";
+    case State::KObstacle: return "#   ";
+    case State::KPath: return "%   ";
+    case State::KStart: return ">   ";
+    case State::KGoal: return "*   ";
+    default: return  "O   ";
   }
 }
 
