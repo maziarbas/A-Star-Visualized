@@ -14,7 +14,7 @@ using std::string;
 using std::vector;
 
 enum class State {KEmpty,KObstacle,KClosed, KPath, KStart, KGoal};
-const int delta[4][2]{{-1,0},{0,-1},{1,0},{0,1}};
+const int delta[4][2]{{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 
 vector<State> ParseLine(string line)
 {
@@ -53,13 +53,13 @@ vector<vector<State>> ReadBoardFile(string path)
 }
 
 int Heuristic(int x1, int y1, int x2, int y2){
-    return (abs(x2-x1)+abs(y2-y1));
+    return abs(x2-x1)+abs(y2-y1);
 }
 // function to compare the f value of each node, f=g+h;
 bool Compare(const vector<int> a , const vector<int> b)
 {
     int f1 = a[2]+a[3];
-    int f2 = a[2]+a[3];
+    int f2 = b[2]+b[3];
     return f1>f2;
 }
 
@@ -69,22 +69,23 @@ void CellSort(vector<vector<int>> *v )
     sort(v->begin(),v->end(),Compare);
 }
 
-bool CheckValidCell(int x, int y, vector<vector<State>> &board)
+bool CheckValidCell(int x, int y, vector<vector<State>> &grid)
 {
-    bool x_on_grid = (x>=0 && x<board.size());
-    bool y_on_grid = (y>=0 && y<board[0].size());
+    bool x_on_grid = (x>=0 && x<grid.size());
+    bool y_on_grid = (y>=0 && y<grid[0].size());
 
     if(x_on_grid && y_on_grid)
     {
-        return board[x][y]==State::KEmpty;
+        return grid[x][y] == State::KEmpty;
     }
     return false;
 }
-void AddToOpen(int x, int y, int g, int h, vector<vector<int>> &openlist, vector<vector<State>> &grid)
-{
-    openlist.push_back({x,y,g,h});
-    grid[x][y] =State::KClosed;
+void AddToOpen(int x, int y, int g, int h, vector<vector<int>> &openlist, vector<vector<State>> &grid) {
+  // Add node to open vector, and mark grid cell as closed.
+  openlist.push_back(vector<int>{x, y, g, h});
+  grid[x][y] = State::KClosed;
 }
+
 // checking on neghbor nodes and if not the goal add to open list, g++ 
 void ExpandNeighbors(const vector<int> &current, int goal[2], vector<vector<int>> &openlist, vector<vector<State>> &grid)
 {
@@ -95,12 +96,12 @@ void ExpandNeighbors(const vector<int> &current, int goal[2], vector<vector<int>
     for(int i = 0; i<4;i++)
     {
         int x2 = x+delta[i][0];
-        int y2 = x+delta[i][2];
+        int y2 = y+delta[i][1];
 
         if (CheckValidCell(x2, y2, grid))
         {
             int h2 = Heuristic(x2, y2, goal[0],goal[1]);
-            int g2 = g++;
+            int g2 = g+1;
             AddToOpen(x2,y2,g2,h2,openlist,grid);
         }
     }
@@ -108,7 +109,7 @@ void ExpandNeighbors(const vector<int> &current, int goal[2], vector<vector<int>
 
 vector<vector<State>> Search(vector<vector<State>> &grid, int init[2], int goal[2])
 {
-    vector<vector<int>> open {};
+    vector<vector<int>> open{};
 
     int x = init[0];
     int y = init[1];
@@ -118,28 +119,59 @@ vector<vector<State>> Search(vector<vector<State>> &grid, int init[2], int goal[
     AddToOpen(x,y,g,h,open,grid);
 
     // checking the next node
-    while(open.size()>0)
-    {
-        CellSort(&open);
-        auto current = open.back();
-        open.pop_back();
-        int x_current = current[0];
-        int y_current = current[1];
-        grid[x_current][y_current]=State::KPath;
+    while (open.size() > 0) {
+    // Get the next node
+    CellSort(&open);
+    auto current = open.back();
+    open.pop_back();
+    x = current[0];
+    y = current[1];
+    grid[x][y] = State::KGoal;
 
-        if(x_current==goal[0] && y_current==goal[1])
-        {
-            grid[init[0]][init[1]]=State::KStart;
-            grid[goal[0]][goal[1]]=State::KGoal;
-            return grid;
-        }
-        ExpandNeighbors(current,goal,open,grid);
+    // Check if we're done.
+    if (x == goal[0] && y == goal[1]) {
+      grid[init[0]][init[1]] = State::KStart;
+      grid[goal[0]][goal[1]] = State::KGoal;
+      return grid;
     }
-    cout << "No path found!" << "\n";
+    
+    // If we're not done, expand search to current node's neighbors.
+    ExpandNeighbors(current, goal, open, grid);
+  }
+  
+  // We've run out of new nodes to explore and haven't found a path.
+  cout << "No path found!" << "\n";
   return std::vector<vector<State>>{};
+    
 } 
+
+string CellString(State cell) {
+   switch(cell) {
+    case State::KObstacle: return "⛰️   ";
+    case State::KPath: return "🚗   ";
+    case State::KStart: return "🚦   ";
+    case State::KGoal: return "🏁   ";
+    default: return "0   "; 
+  }
+}
+
+// function to visulaize the path 
+void PrintBoard(const vector<vector<State>> board) {
+  for (int i = 0; i < board.size(); i++) {
+    for (int j = 0; j < board[i].size(); j++) {
+        cout<<CellString(board[i][j]);
+    }
+    cout << "\n";
+  }
+}
 
 int main()
 {
-   ReadBoardFile("nodes.txt");
+    int init[2]{0,0};
+    int goal[2]{4,5};
+
+    auto board = ReadBoardFile("1.board");
+    auto path = Search(board, init,goal);
+    PrintBoard(path);
+
 }
