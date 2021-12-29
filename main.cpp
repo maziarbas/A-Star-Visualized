@@ -19,9 +19,10 @@ const int delta[4][2]{{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 vector<State> ParseLine(string line)
 {
     int n;
+    char c;
     vector<State> row;
     istringstream sline(line);
-    while (sline>>n)
+    while (sline >> n >> c && c == ',')
     {
         switch (n)
         {
@@ -32,7 +33,8 @@ vector<State> ParseLine(string line)
         default:
             row.push_back(State::KObstacle);
             break;
-        }    }
+        } 
+    }
     return row;    
 }
 
@@ -45,7 +47,6 @@ vector<vector<State>> ReadBoardFile(string path)
         string line;
         while(getline(board_file,line))
         {
-            //cout<<line<<"\n";
             board.push_back(ParseLine(line));
         }
     }
@@ -146,12 +147,13 @@ vector<vector<State>> Search(vector<vector<State>> &grid, int init[2], int goal[
 } 
 
 string CellString(State cell) {
-   switch(cell) {
-    case State::KObstacle: return "⛰️   ";
-    case State::KPath: return "🚗   ";
-    case State::KStart: return "🚦   ";
-    case State::KGoal: return "🏁   ";
-    default: return "0   "; 
+    
+    switch(cell) {
+    case State::KObstacle: return "\U0000274C";
+    case State::KPath: return "\U0001F535";
+    case State::KStart: return "\U0001F6A6";
+    case State::KGoal: return "\U0001F3C1";
+    default: return  "\U000025FB";
   }
 }
 
