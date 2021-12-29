@@ -127,7 +127,7 @@ vector<vector<State>> Search(vector<vector<State>> &grid, int init[2], int goal[
     open.pop_back();
     x = current[0];
     y = current[1];
-    grid[x][y] = State::KGoal;
+    grid[x][y] = State::KPath;
 
     // Check if we're done.
     if (x == goal[0] && y == goal[1]) {
