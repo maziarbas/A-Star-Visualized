@@ -175,5 +175,6 @@ int main()
     auto board = ReadBoardFile("1.board");
     auto path = Search(board, init,goal);
     PrintBoard(path);
+    return 0;
 
 }
